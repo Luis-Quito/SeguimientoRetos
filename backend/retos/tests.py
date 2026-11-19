@@ -55,3 +55,36 @@ class RetoApiTests(APITestCase):
         )
         self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('porcentaje', respuesta.data)
+
+
+from django.test import TestCase
+from django.urls import reverse
+from rest_framework.test import APIClient
+
+from .models import Reto, TareaSemanal
+from .semanas import crear_tareas_semanales
+
+
+class TareaSemanalTests(TestCase):
+
+    def test_generacion_no_duplica_tareas(self):
+        reto = Reto.objects.create(
+            titulo='Reto de prueba',
+            descripcion='Verificar tareas semanales',
+            fecha_inicio='2026-11-16',
+            fecha_fin='2027-01-17',
+        )
+
+        crear_tareas_semanales(reto)
+        cantidad_inicial = TareaSemanal.objects.filter(reto=reto).count()
+
+        crear_tareas_semanales(reto)
+        cantidad_final = TareaSemanal.objects.filter(reto=reto).count()
+
+        self.assertEqual(cantidad_inicial, cantidad_final)
+
+    def test_consultar_tareas_semanales(self):
+        cliente = APIClient()
+        respuesta = cliente.get('/api/tareas/')
+
+        self.assertEqual(respuesta.status_code, 200)

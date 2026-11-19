@@ -1,14 +1,12 @@
 
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { IonButton } from '@ionic/angular';
+import { Component } from '@angular/core';
+import { IonApp, IonRouterOutlet } from '@ionic/angular';
 
 @Component({
-  imports: [RouterOutlet, IonButton],
   selector: 'app-root',
-  styleUrl: './app.scss',
+  standalone: true,
+  imports: [IonApp, IonRouterOutlet],
   templateUrl: './app.html',
+  styleUrl: './app.scss'
 })
-export class App {
-  protected readonly title = signal('frontend');
-}
+export class App {}

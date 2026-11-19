@@ -1,6 +1,7 @@
 
 """Configuración de Django. Los valores sensibles se leen de backend/.env."""
 import os
+from datetime import date
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -133,3 +134,9 @@ CORS_ALLOWED_ORIGINS = lista(
     'CORS_ALLOWED_ORIGINS',
     'http://localhost:8100'
 )
+
+
+# --- Calendario del periodo académico ---------------------------------------
+SEMESTRE_INICIO = date.fromisoformat(os.getenv('SEMESTRE_INICIO', '2026-10-05'))
+SEMANA_DESDE = int(os.getenv('SEMANA_DESDE', '7'))
+SEMANA_HASTA = int(os.getenv('SEMANA_HASTA', '15'))

@@ -1,0 +1,100 @@
+
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Mis retos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- BUSCADOR -->
+  <ion-searchbar
+    [(ngModel)]="busqueda"
+    placeholder="Buscar retos">
+  </ion-searchbar>
+
+  <!-- CARGANDO RETOS -->
+  <div *ngIf="cargando" class="ion-text-center ion-padding">
+    <ion-spinner></ion-spinner>
+    <p>Cargando retos...</p>
+  </div>
+
+  <!-- ERROR AL CARGAR RETOS -->
+  <div *ngIf="error" class="ion-text-center ion-padding">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- LISTA DE RETOS -->
+  <ion-list *ngIf="!cargando && !error">
+
+    <ion-item *ngFor="let reto of retosFiltrados">
+      <ion-label>
+
+        <h2>{{ reto.titulo }}</h2>
+        <p>{{ reto.descripcion }}</p>
+        <p>Estado: {{ reto.estado }}</p>
+        <p>Fecha de inicio: {{ reto.fecha_inicio }}</p>
+
+        <!-- TAREAS SEMANALES -->
+        <div class="ion-padding-top">
+
+          <h3>Tareas semanales</h3>
+
+          <p *ngIf="cargandoTareas">
+            Cargando tareas...
+          </p>
+
+          <p *ngIf="errorTareas">
+            {{ errorTareas }}
+          </p>
+
+          <ng-container *ngIf="!cargandoTareas && !errorTareas">
+
+            <div
+              *ngFor="let tarea of tareasDeReto(reto.id)"
+              class="tarea-semanal">
+
+              <strong>Semana {{ tarea.semana }}</strong>
+
+              <p>{{ tarea.descripcion }}</p>
+
+              <p>
+                Fechas:
+                {{ tarea.fecha_inicio }}
+                al
+                {{ tarea.fecha_fin }}
+              </p>
+
+              <p>
+                Cumplimiento: {{ tarea.porcentaje }}%
+              </p>
+
+              <progress
+                [value]="tarea.porcentaje"
+                max="100"
+                style="width: 100%;">
+              </progress>
+
+            </div>
+
+            <p *ngIf="tareasDeReto(reto.id).length === 0">
+              Este reto no tiene tareas semanales.
+            </p>
+
+          </ng-container>
+
+        </div>
+
+      </ion-label>
+    </ion-item>
+
+  </ion-list>
+
+  <!-- SIN RESULTADOS -->
+  <p
+    *ngIf="!cargando && !error && retosFiltrados.length === 0"
+    class="ion-text-center ion-padding">
+    No se encontraron retos.
+  </p>
+
+</ion-content>
