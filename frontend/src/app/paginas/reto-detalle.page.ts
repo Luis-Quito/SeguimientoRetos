@@ -95,15 +95,48 @@ import { SeguimientoService } from '../core/seguimiento.service';
     IonToolbar
   ],
 
-  styles: `
-    .semana-actual {
-      --background: var(--ion-color-primary-tint);
-    }
 
-    ion-progress-bar {
-      margin-top: 6px;
-    }
-  `,
+styles: `
+  ion-item.semana-actual {
+    --background: #eaf3ff;
+    --color: #172b4d;
+    --border-color: #c5ddff;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+  }
+
+  .semana-actual ion-label {
+    color: #172b4d;
+  }
+
+  .semana-actual ion-label h2 {
+    color: #172b4d;
+    font-weight: 600;
+  }
+
+  .semana-actual ion-label p {
+    color: #405574;
+  }
+
+  .semana-actual ion-note {
+    color: #405574;
+    font-size: 12px;
+  }
+
+  .semana-actual ion-range {
+    --bar-background: #b8cbea;
+    --bar-background-active: #2563eb;
+    --knob-background: #2563eb;
+    --pin-background: #2563eb;
+    --pin-color: #ffffff;
+  }
+
+  ion-progress-bar {
+    margin-top: 6px;
+    height: 5px;
+    border-radius: 4px;
+  }
+`,
 
   template: `
     <ion-header>
