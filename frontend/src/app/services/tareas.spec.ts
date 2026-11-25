@@ -1,15 +1,25 @@
-import { TestBed } from '@angular/core/testing';
-import { Tareas } from './tareas';
 
-describe('Tareas', () => {
-  let service: Tareas;
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+
+import { TareasService } from './tareas';
+
+describe('TareasService', () => {
+  let service: TareasService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Tareas);
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
+    });
+
+    service = TestBed.inject(TareasService);
   });
 
-  it('should be created', () => {
+  it('debe crear el servicio correctamente', () => {
     expect(service).toBeTruthy();
   });
 });

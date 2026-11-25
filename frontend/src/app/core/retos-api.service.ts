@@ -1,0 +1,121 @@
+
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpParams
+} from '@angular/common/http';
+
+import { Injectable, inject } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import { Capacitor } from '@capacitor/core';
+
+import {
+  Avance,
+  NuevoAvance,
+  NuevoReto,
+  Pagina,
+  Reto,
+  TareaSemanal
+} from './modelos';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class RetosApi {
+
+  private readonly http = inject(HttpClient);
+
+  private readonly base = Capacitor.isNativePlatform()
+    ? 'http://10.0.2.2:8000/api'
+    : 'http://127.0.0.1:8000/api';
+
+  listarRetos(): Observable<Reto[]> {
+    return this.http
+      .get<Pagina<Reto>>(`${this.base}/retos/`)
+      .pipe(map(pagina => pagina.results));
+  }
+
+  obtenerReto(id: number): Observable<Reto> {
+    return this.http.get<Reto>(
+      `${this.base}/retos/${id}/`
+    );
+  }
+
+  crearReto(datos: NuevoReto): Observable<Reto> {
+    return this.http.post<Reto>(
+      `${this.base}/retos/`,
+      datos
+    );
+  }
+
+  generarSemanas(
+    id: number
+  ): Observable<{ creadas: number }> {
+    return this.http.post<{ creadas: number }>(
+      `${this.base}/retos/${id}/generar-semanas/`,
+      {}
+    );
+  }
+
+  listarTareas(): Observable<TareaSemanal[]> {
+    return this.http.get<TareaSemanal[]>(
+      `${this.base}/tareas/`
+    );
+  }
+
+  actualizarTarea(
+    id: number,
+    cambios: Partial<
+      Pick<TareaSemanal, 'porcentaje' | 'descripcion'>
+    >
+  ): Observable<TareaSemanal> {
+    return this.http.patch<TareaSemanal>(
+      `${this.base}/tareas/${id}/`,
+      cambios
+    );
+  }
+
+  listarAvances(retoId: number): Observable<Avance[]> {
+    const params = new HttpParams().set(
+      'reto',
+      retoId
+    );
+
+    return this.http
+      .get<Pagina<Avance>>(
+        `${this.base}/avances/`,
+        { params }
+      )
+      .pipe(map(pagina => pagina.results));
+  }
+
+  crearAvance(datos: NuevoAvance): Observable<Avance> {
+    return this.http.post<Avance>(
+      `${this.base}/avances/`,
+      datos
+    );
+  }
+}
+
+export function mensajeError(error: unknown): string {
+
+  if (error instanceof HttpErrorResponse) {
+
+    if (error.status === 0) {
+      return 'Sin conexión con el servidor Django.';
+    }
+
+    if (
+      error.error &&
+      typeof error.error === 'object'
+    ) {
+      return Object.values(
+        error.error as Record<string, unknown>
+      ).flat().join(' ');
+    }
+
+    return `Error ${error.status} del servidor.`;
+  }
+
+  return 'Error inesperado.';
+}

@@ -1,12 +1,70 @@
 
-import { Component } from '@angular/core';
-import { IonApp, IonRouterOutlet } from '@ionic/angular';
+import { Component, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+
+import {
+  IonApp,
+  IonRouterOutlet,
+  ToastController
+} from '@ionic/angular';
+
+import { SeguimientoService } from './core/seguimiento.service';
+import { SemanaEvaluada } from './core/semaforo';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [IonApp, IonRouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  imports: [
+    IonApp,
+    IonRouterOutlet
+  ],
+  template: `
+    <ion-app>
+      <ion-router-outlet></ion-router-outlet>
+    </ion-app>
+  `
 })
-export class App {}
+export class App {
+
+  private readonly toast = inject(ToastController);
+  private readonly router = inject(Router);
+
+  constructor() {
+    inject(SeguimientoService)
+      .nuevasRojas$
+      .pipe(takeUntilDestroyed())
+      .subscribe(nuevas => {
+        void this.avisarRojas(nuevas);
+      });
+  }
+
+  private async avisarRojas(
+    nuevas: SemanaEvaluada[]
+  ): Promise<void> {
+
+    const detalle = nuevas
+      .map(semana =>
+        `${semana.reto_titulo} (semana ${semana.semana})`
+      )
+      .join(', ');
+
+    const aviso = await this.toast.create({
+      header: `${nuevas.length} semana(s) cerrada(s) en rojo`,
+      message: detalle,
+      color: 'danger',
+      position: 'top',
+      duration: 8000,
+      buttons: [
+        {
+          text: 'Ver',
+          handler: () => {
+            void this.router.navigate(['/alertas']);
+          }
+        }
+      ]
+    });
+
+    await aviso.present();
+  }
+}
