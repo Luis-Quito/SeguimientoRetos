@@ -25,7 +25,12 @@ import {
 } from '@ionic/angular';
 
 import { addIcons } from 'ionicons';
-import { add, notifications } from 'ionicons/icons';
+
+import {
+  add,
+  notifications,
+  statsChart
+} from 'ionicons/icons';
 
 import {
   BehaviorSubject,
@@ -86,14 +91,40 @@ const RESUMEN_VACIO: ResumenReto = {
       display: flex;
       gap: 4px;
     }
+
+    .boton-dashboard {
+      font-size: 12px;
+      text-transform: none;
+    }
+
+    .boton-dashboard ion-icon {
+      margin-right: 5px;
+    }
   `,
 
   template: `
     <ion-header>
       <ion-toolbar color="primary">
-        <ion-title>Mis retos</ion-title>
+
+        <ion-title>
+          Mis retos
+        </ion-title>
 
         <ion-buttons slot="end">
+
+          <ion-button
+            class="boton-dashboard"
+            routerLink="/dashboard"
+            aria-label="Abrir dashboard">
+
+            <ion-icon
+              name="stats-chart">
+            </ion-icon>
+
+            Dashboard
+
+          </ion-button>
+
           <ion-button
             routerLink="/alertas"
             aria-label="Ver alertas">
@@ -108,8 +139,11 @@ const RESUMEN_VACIO: ResumenReto = {
                 {{ total }}
               </ion-badge>
             }
+
           </ion-button>
+
         </ion-buttons>
+
       </ion-toolbar>
 
       <ion-toolbar>
@@ -118,6 +152,7 @@ const RESUMEN_VACIO: ResumenReto = {
           (ionInput)="buscar($any($event).detail.value)">
         </ion-searchbar>
       </ion-toolbar>
+
     </ion-header>
 
     <ion-content>
@@ -125,8 +160,10 @@ const RESUMEN_VACIO: ResumenReto = {
       <ion-refresher
         slot="fixed"
         (ionRefresh)="refrescar($any($event))">
+
         <ion-refresher-content>
         </ion-refresher-content>
+
       </ion-refresher>
 
       @if (error$ | async; as error) {
@@ -141,18 +178,22 @@ const RESUMEN_VACIO: ResumenReto = {
 
         @if (vista.length === 0) {
           <p class="ion-padding">
-            No hay retos. Pulsa + para crear el primero.
+            No hay retos que coincidan con tu búsqueda.
           </p>
         }
 
         <ion-list>
+
           @for (item of vista; track item.reto.id) {
+
             <ion-item
               [routerLink]="['/retos', item.reto.id]"
               detail>
 
               <ion-label>
-                <h2>{{ item.reto.titulo }}</h2>
+                <h2>
+                  {{ item.reto.titulo }}
+                </h2>
 
                 <p>
                   {{ etiquetaEstado[item.reto.estado] }}
@@ -161,7 +202,9 @@ const RESUMEN_VACIO: ResumenReto = {
                 </p>
               </ion-label>
 
-              <div slot="end" class="semaforos">
+              <div
+                slot="end"
+                class="semaforos">
 
                 @if (item.resumen.ROJO) {
                   <ion-chip color="danger">
@@ -184,8 +227,11 @@ const RESUMEN_VACIO: ResumenReto = {
               </div>
 
             </ion-item>
+
           }
+
         </ion-list>
+
       }
 
       <ion-fab
@@ -197,9 +243,11 @@ const RESUMEN_VACIO: ResumenReto = {
           routerLink="/retos/nuevo"
           aria-label="Nuevo reto">
 
-          <ion-icon name="add"></ion-icon>
+          <ion-icon name="add">
+          </ion-icon>
 
         </ion-fab-button>
+
       </ion-fab>
 
     </ion-content>
@@ -207,54 +255,78 @@ const RESUMEN_VACIO: ResumenReto = {
 })
 export class RetosListaPage {
 
-  private readonly seguimiento = inject(SeguimientoService);
+  private readonly seguimiento =
+    inject(SeguimientoService);
 
   private readonly busqueda$ =
     new BehaviorSubject<string>('');
 
-  protected readonly etiquetaEstado = ETIQUETA_ESTADO;
-  protected readonly fechaCorta = fechaCorta;
+  protected readonly etiquetaEstado =
+    ETIQUETA_ESTADO;
 
-  protected readonly error$ = this.seguimiento.error$;
+  protected readonly fechaCorta =
+    fechaCorta;
+
+  protected readonly error$ =
+    this.seguimiento.error$;
 
   protected readonly totalAlertas$ =
     this.seguimiento.totalAlertas$;
 
   protected readonly vista$ = combineLatest([
+
     this.seguimiento.retos$,
 
     this.busqueda$.pipe(
       debounceTime(300),
-      map(texto => texto.trim().toLowerCase()),
+      map(texto =>
+        texto.trim().toLowerCase()
+      ),
       distinctUntilChanged()
     ),
 
     this.seguimiento.resumen$
+
   ]).pipe(
+
     map(([retos, texto, resumen]) =>
+
       retos
         .filter(reto =>
-          reto.titulo.toLowerCase().includes(texto)
+          reto.titulo
+            .toLowerCase()
+            .includes(texto)
         )
+
         .map(reto => ({
           reto,
           resumen:
-            resumen.get(reto.id) ?? RESUMEN_VACIO
+            resumen.get(reto.id) ??
+            RESUMEN_VACIO
         }))
+
     )
+
   );
 
   constructor() {
+
     addIcons({
       add,
-      notifications
+      notifications,
+      statsChart
     });
+
   }
 
   protected buscar(
     texto: string | null | undefined
   ): void {
-    this.busqueda$.next(texto ?? '');
+
+    this.busqueda$.next(
+      texto ?? ''
+    );
+
   }
 
   protected refrescar(
@@ -271,5 +343,6 @@ export class RetosListaPage {
       .subscribe(() => {
         evento.target.complete();
       });
+
   }
 }

@@ -24,6 +24,13 @@ export const routes: Routes = [
   },
 
   {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./paginas/dashboard.page')
+        .then(m => m.DashboardPage)
+  },
+
+  {
     path: 'retos/:id',
     loadComponent: () =>
       import('./paginas/reto-detalle.page')
